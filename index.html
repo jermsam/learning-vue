@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Essentials</title>
+    <style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+.active{
+    font-weight: bold;
+}
+.text-danger{
+    color: red;
+    
+}
+.demo-alert-box{
+    background-color: red;
+    color:aliceblue;
+}
+</style>
+</head>
+<body>
+    <div id="app">
+        <!--The most basic form of data binding is text interpolation 
+            using the “Mustache” syntax (double curly braces):-->
+       <p>{{ message }}</p>
+       <!--One restriction is that each binding can only contain one single expression-->
+       <!--Template expressions are sandboxed and only have access to a whitelist of globals such as Math and Date.
+         You should not attempt to access user-defined globals in template expressions. -->
+       <p>{{ message.split('').reverse().join('') }}</p>
+        <!-- computed property is cached based on its reactive property and only 
+            reevaluate when reactive property changes-->
+       <p>{{reversedComputedMsg}}</p>
+       <!--while method invocation will always run the function whenever a re-render happens.-->
+       <p>{{reverseMessageMethod()}}</p>
+        <span v-bind:title="tooltip">
+            Hover your mouse over me for a few seconds
+            to see my dynamically bound title!
+        </span>
+        <span v-if="seen">Now you see me</span>
+        <p v-html="rawHtml"></p>
+        <!--If you want whitespace from user input to be trimmed automatically,
+             you can add the trim modifier to your v-model-managed inputs:-->
+         <input v-model.trim="filter" placeholder="filter todos"/>
+         {{filter}}
+        <ol>
+            <!--
+             You can also use of as the delimiter instead of in, 
+             so that it is closer to JavaScript’s syntax for iterators:   
+            -->
+            <li 
+                is='todo-item' 
+                v-for="(todo,index) in todos" 
+                :key="index"
+                :todo="todo"
+                @remove="removeItem(index,$event)"
+            />
+        </ol>
+          <input v-model="todo">
+           <button v-on:click="addItem">+</button>
+           
+           <h3>Names</h3>
+           <p>FirstName: {{firstName}}</p>
+           <p>LastName: {{lastName}}</p>
+           <div style="display:flex; flex-direction: row; ">
+               <input v-model="fullName">
+           <button v-on:click="addItem">+</button>
+        </div>
+        <div id="watch-example">
+            <p>
+                Ask a yes/no question:
+                <input v-model="question">
+            </p>
+            <p>{{ answer }}</p>
+        </div>
+        <div
+        class="static"
+        v-bind:class="{ active: isActive, 'text-danger': hasError }"
+       :style="styleObject"
+       
+        >
+       <!--Vue tries to render elements as efficiently as possible, 
+        often re-using them instead of rendering from scratch.
+        However you csn alter this when desired. E.g: If you want to tell vue
+           “These 3 ps are completely separate - don’t re-use them.” 
+        Add a key attribute with unique values--> 
+   <p v-if="hasError&&isActive" key="error-active-p">
+        You can have multiple classes toggled by having more fields in the object. 
+   </p>
+   <p v-else-if="!isActive" key="not-active-p">
+          In addition, the v-bind:class directive can also co-exist with the plain class attribute.
+   </p>
+   <p v-else key="other-p">
+  Similar to v-else, a v-else-if element must immediately follow a v-if or a v-else-if element.
+   </p>
+    <div style="display:flex; flex-direction: row; justify-content: space-around;">
+        <div style="display:flex; flex-direction: column;">
+        <span>Activate</span>
+        <label class="switch">
+        <input type="checkbox" :checked="isActive" @click="isActive =!isActive">
+        <span class="slider round"></span>
+        </label>
+    </div>
+    <div style="display:flex; flex-direction: column;">
+        <span>Toggle To Error</span>
+        <label class="switch">
+        <input type="checkbox" :checked="hasError" @click="hasError=!hasError">
+        <span class="slider round"></span>
+        </label>
+    </div>
+    </div>
+    </div>
+    <div>All: {{numbers}}</div>
+    <div>Even: {{evenNumbers}}</div>
+    <div>
+        <!--
+            If the initial value of your v-model expression does not match any of the options, 
+            the <select> element will render in an “unselected” state. On iOS, this will prevent 
+                the user from being able to select the first item, because iOS does not fire a change
+                 event in this case. It is therefore 
+            recommended to provide a disabled option with an empty value, 
+            as demonstrated in the example above.
+        -->
+        <select v-model="selected">
+              <option disabled value="">Please select one</option>
+        <option v-for="option in options" v-bind:value="option.value">
+            {{ option.text }}
+        </option>
+        </select>
+        <span>Selected: {{ selected }}</span>
+        <!-- Vue’s custom <slot> element:-->
+        <alert-box>
+        Something bad happened.
+        </alert-box>
+    </div>
+    </div>
+
+ <!-- development version, includes helpful console warnings -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script type="text/javascript">
+Vue.component('todo-item', {
+    /**Props are custom attributes you can register on a component. 
+     * When a value is passed to a prop attribute, it becomes a property on that component instance. */
+  // The todo-item component now accepts a
+  // "prop", which is like a custom attribute.
+  // This prop is called todo.
+  props: ['todo'],
+  template: '<li> \
+           <span> {{ todo.text }}</span> \
+            <button v-on:click="$emit(`remove`,`Deleting *${todo.text}*`)">-</button> \
+            </li>',
+   data: function () {
+  return {
+    /**
+     * Instead, a component’s data option must be a function, 
+     * so that each instance can maintain an independent copy of the returned data object:
+    */
+  }
+}         
+})
+/** Vue’s custom <slot> element:*/
+Vue.component('alert-box', {
+  template: `
+    <div class="demo-alert-box">
+      <strong>Error!</strong>
+      <slot></slot>
+    </div>
+  `
+})
+
+/**
+ * When a Vue instance is created, 
+ * it adds all the properties found in its data object
+ *  to Vue’s reactivity system.
+*/
+    var app = new Vue({
+                el: '#app',
+                /**It should be noted that properties in data are 
+                 * only reactive if they existed 
+                 * when the instance was created.
+                 * If you know you’ll need a property later, 
+                 * but it starts out empty or non-existent, 
+                 * you’ll need to set some initial value. 
+                 * Object.freeze() prevents existing properties from being reactive
+                 * */
+                data: {
+                    message: 'Hello Vue!',
+                    tooltip:'You loaded this page on ' + new Date().toLocaleString(),
+                    seen: true,
+                    todo:'',
+                     todos: [
+                        { text: 'Learn JavaScript' },
+                        { text: 'Learn Vue' },
+                        { text: 'Build something awesome' }
+                        ],
+                    /**
+                     * Dynamically rendering arbitrary HTML on your website can be very dangerous 
+                     * because it can easily lead to XSS vulnerabilities. 
+                     * Only use HTML interpolation on trusted content and never on user-provided content.
+                     * */    
+                    rawHtml:`<h3 style="color:blue;">To-do List</h3>`,
+                    firstName:'',
+                    lastName:'',
+                    question: '',
+                    answer: 'I cannot give you an answer until you ask a question!',
+                    isActive: true,
+                    hasError: false,
+                     styleObject: {
+                        textTransform: 'capitalize',
+                        fontSize: '13px'
+                    },
+                    filter:'',
+                    numbers: [ 1, 2, 3, 4, 5 ],
+                    selected: 'A',
+                    options: [
+                    { text: 'One', value: 'A' },
+                    { text: 'Two', value: 'B' },
+                    { text: 'Three', value: 'C' }
+                    ]
+                },
+                created: function () {
+                        // _.debounce is a function provided by lodash to limit how
+                        // often a particularly expensive operation can be run.
+                        // In this case, we want to limit how often we access
+                        // yesno.wtf/api, waiting until the user has completely
+                        // finished typing before making the ajax request. To learn
+                        // more about the _.debounce function (and its cousin
+                        // _.throttle), visit: https://lodash.com/docs#debounce
+                        this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
+
+                    },
+                    /**
+                     * Watchers are useful when you want to perform asynchronous 
+                     * or expensive operations in response to changing data.
+                     * he watch option allows us to perform an asynchronous operation 
+                     * (accessing an API),limit how often we perform that operation, 
+                     * and set intermediary states until we get a final answer.
+                    */
+                watch:{
+                   // whenever question changes, this function will run
+                    question: function (newQuestion, oldQuestion) {
+
+                    this.answer = 'Waiting for you to stop typing...';
+                    this.debouncedGetAnswer();
+
+                    },
+                    filter:function(newValue) {
+                        /**
+                         *  non-mutating methods, e.g. filter(), concat() and slice(), are methods
+                         * which do not mutate the original array but always return a new array. 
+                         * When working with non-mutating methods, you can replace the old array with the new one:
+                        */
+                              const original = Object.freeze(this.todos);
+                                   if(newValue){
+                                        this.todos = this.todos.filter(({text})=>text.includes(newValue))
+                                   }else{
+                                       this.todos=original
+                                   }
+                    }
+                    
+                },
+                computed:{
+
+                    reversedComputedMsg: function(){
+
+                        return this.message.split('').reverse().join('');
+
+                    },
+               /** 
+                * It is often a better idea to use a computed 
+                * property rather than an imperative watch callback.
+                */
+                    fullName: {
+                            // getter
+                        get: function () {
+
+                            return `${this.firstName} ${this.lastName}`.trim();
+
+                        },
+                            // setter
+                        set: function (newValue) {
+
+                            let name = [];
+                            name = newValue.trim().split(' ');
+                            this.firstName= name[0]||'';
+                            this.lastName= name[1] ||''; 
+
+                        }
+                    },
+
+                     evenNumbers: function () {
+                         /**Sometimes we want to display a filtered or sorted version of 
+                          * an array without actually mutating or resetting the original data. 
+                          * In this case, you can create a computed property that returns the filtered or sorted array.*/
+                        return this.numbers.filter(function (number) {
+                        return number % 2 === 0
+                        })
+                    }
+                },
+
+                methods:{
+                    removeItem: function (index,warning) {
+                        alert(warning)
+                        this.todos.splice(index,1);
+
+                    },
+
+                    addItem:function(){
+                    /**
+                     * Vue wraps an observed array’s mutation methods so they will also trigger view updates.
+                     *  The wrapped methods are:
+                     * push()
+                    pop()
+                    shift()
+                    unshift()
+                    splice()
+                    sort()
+                    reverse()
+                    */
+                        const text = this.todo;
+                        this.todos.push({text});
+                        this.todo='';
+
+                    },
+
+                     reverseMessageMethod: function () {
+
+                        return this.message.split('').reverse().join('');
+
+                        },
+
+                    getAnswer: function () {
+
+                        if (this.question.indexOf('?') === -1) {
+                            this.answer = 'Questions usually contain a question mark. ;-)'
+                            return
+                        }
+
+                        this.answer = 'Thinking...'
+                        var vm = this
+
+                        axios.get('https://yesno.wtf/api')
+                            .then(function (response) {
+                            vm.answer = _.capitalize(response.data.answer)
+                            })
+                            .catch(function (error) {
+                            vm.answer = 'Error! Could not reach the API. ' + error
+                            })
+
+                        },
+                        
+                       
+                    }
+            })
+</script>
+</body>
+</html>
