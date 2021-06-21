@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vue Essentials</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
 .switch {
   position: relative;
@@ -76,10 +78,16 @@ input:checked + .slider:before {
     background-color: red;
     color:aliceblue;
 }
+.avatar {
+  vertical-align: middle;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
 </style>
 </head>
 <body>
-    <div id="app">
+    <div id="app" class="w3-container">
         <!--The most basic form of data binding is text interpolation 
             using the “Mustache” syntax (double curly braces):-->
        <p>{{ message }}</p>
@@ -97,12 +105,14 @@ input:checked + .slider:before {
             to see my dynamically bound title!
         </span>
         <span v-if="seen">Now you see me</span>
-        <p v-html="rawHtml"></p>
+       
+        <div class="w3-card w3-padding-large w3-margin">
+             <p v-html="rawHtml"></p>
         <!--If you want whitespace from user input to be trimmed automatically,
              you can add the trim modifier to your v-model-managed inputs:-->
          <input v-model.trim="filter" placeholder="filter todos"/>
          {{filter}}
-        <ol>
+        <ol class="w3-ul w3-margin">
             <!--
              You can also use of as the delimiter instead of in, 
              so that it is closer to JavaScript’s syntax for iterators:   
@@ -113,11 +123,15 @@ input:checked + .slider:before {
                 :key="index"
                 :todo="todo"
                 @remove="removeItem(index,$event)"
-            />
+            >
+            <template>
+               <i class="fas fa-thumb-tack"></i>
+            </template>
+            </li>
         </ol>
           <input v-model="todo">
            <button v-on:click="addItem">+</button>
-           
+           </div>
            <h3>Names</h3>
            <p>FirstName: {{firstName}}</p>
            <p>LastName: {{lastName}}</p>
@@ -125,15 +139,9 @@ input:checked + .slider:before {
                <input v-model="fullName">
            <button v-on:click="addItem">+</button>
         </div>
-        <div id="watch-example">
-            <p>
-                Ask a yes/no question:
-                <input v-model="question">
-            </p>
-            <p>{{ answer }}</p>
-        </div>
+       
         <div
-        class="static"
+        class="w3-panel w3-leftbar w3-padding-large w3-margin"
         v-bind:class="{ active: isActive, 'text-danger': hasError }"
        :style="styleObject"
        
@@ -143,13 +151,13 @@ input:checked + .slider:before {
         However you csn alter this when desired. E.g: If you want to tell vue
            “These 3 ps are completely separate - don’t re-use them.” 
         Add a key attribute with unique values--> 
-   <p v-if="hasError&&isActive" key="error-active-p">
+   <p v-if="hasError&&isActive" key="error-active-p" class="w3-xlarge w3-serif">
         You can have multiple classes toggled by having more fields in the object. 
    </p>
-   <p v-else-if="!isActive" key="not-active-p">
+   <p v-else-if="!isActive" key="not-active-p" class="w3-xlarge w3-serif">
           In addition, the v-bind:class directive can also co-exist with the plain class attribute.
    </p>
-   <p v-else key="other-p">
+   <p v-else key="other-p" class="w3-xlarge w3-serif">
   Similar to v-else, a v-else-if element must immediately follow a v-if or a v-else-if element.
    </p>
     <div style="display:flex; flex-direction: row; justify-content: space-around;">
@@ -171,6 +179,8 @@ input:checked + .slider:before {
     </div>
     <div>All: {{numbers}}</div>
     <div>Even: {{evenNumbers}}</div>
+
+    
     <div>
         <!--
             If the initial value of your v-model expression does not match any of the options, 
@@ -181,25 +191,115 @@ input:checked + .slider:before {
             as demonstrated in the example above.
         -->
         <select v-model="selected">
-              <option disabled value="">Please select one</option>
-        <option v-for="option in options" v-bind:value="option.value">
-            {{ option.text }}
-        </option>
+            
+              <option
+              is="custom-option"
+              disabled 
+              :option="{text:'Please select one',value:''}"
+              >
+            <option
+            is="custom-option"
+            v-for="(option,index) in options" 
+            :key="index" 
+            :option="option"
+            >
+           <!--
+               <template v-slot:append>
+              *
+           </template>
+           -->
+           <!--
+               Similar to v-on and v-bind, v-slot also has a shorthand, 
+               replacing everything before the argument (v-slot:) with the special symbol #.
+           -->
+           <template #append>
+              *
+           </template>
+           <!--Attributes bound to a <slot> element are called slot props. Now, in the parent scope, 
+               we can use v-slot with a value to define a name for the slot props we’ve been provided:
+            -->
+          <!--
+               <template v-slot:prepend="slotProps">
+               &#8719; {{slotProps.value}}
+           </template> 
+          -->
+          <!--
+              This can make the template much cleaner, especially when the slot provides many props. 
+            It also opens other possibilities, such as renaming props, e.g. options to item:
+        -->
+          <template v-slot:prepend="{ option: item }">
+               &#8719; {{item.option.value}}
+           </template>
+            </option>
         </select>
         <span>Selected: {{ selected }}</span>
         <!-- Vue’s custom <slot> element:-->
         <alert-box>
-        Something bad happened.
+       <p>Green often indicates something successful or positive.</p>
         </alert-box>
+        <div id="watch-example">
+            <p>
+                Ask a yes/no question:
+                <input v-model="question">
+            </p>
+            <p>{{ answer }}</p>
+        </div>
+        <make-bigger :size="size">
+        <button @click="size+=1">+{{size}}</button>
+        </make-bigger>
+        <!--This pattern allows you to use base components more 
+            like raw HTML elements, without having 
+            to care about which element is actually at its root:-->
+      <div class="w3-card w3-padding-large w3-margin">
+            <base-input
+        label="Username:"
+        v-model="username"
+        required
+        placeholder="Enter your username"
+        @focus="labelColor='#0047AB'"
+        @blur="labelColor='#6F8FAF'"
+        :style="{color:labelColor, marginBottom:'1rem', fontWeight:'bold'}"
+        ></base-input>
+         {{username}}
+      </div>
     </div>
+    <div class="w3-card-4 w3-margin w3-padding-large">
+<dynamic-tabs :tabs="cities">
+          <template #label="{label:city}">
+             <button 
+             class="w3-bar-item w3-button tablink"
+             @openCity="changeView($emit)"
+             >
+               {{city.name}}
+            </button>
+          </template>
+          <template #content="{content:city}">
+            <h2>{{city.tab.name}}</h2>
+            <p>{{city.tab.description}}</p> 
+          </template>
+      </dynamic-tabs>
+</div>
+<div class="w3-container">
+Rooth
+</div>
     </div>
 
  <!-- development version, includes helpful console warnings -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+<script type="text/javascript" src="./AlertBox.js"></script>
+<script type="text/javascript" src="./MakeBigger.js"></script>
+<script type="text/javascript" src="./BaseInput.js"></script>
+<script type="text/javascript" src="./CustomOption.js"></script>
+<script type="text/javascript" src="./DynamicTabs.js"></script>
 <script type="text/javascript">
+/**
+ * These components are globally registered. 
+ * That means they can be used in the template of any root Vue instance (new Vue) created after registration.
+ * This even applies to all subcomponents, meaning all three of 
+ * these components will also be available inside each other.
+*/
 Vue.component('todo-item', {
     /**Props are custom attributes you can register on a component. 
      * When a value is passed to a prop attribute, it becomes a property on that component instance. */
@@ -207,9 +307,10 @@ Vue.component('todo-item', {
   // "prop", which is like a custom attribute.
   // This prop is called todo.
   props: ['todo'],
-  template: '<li> \
+  template: '<li class="w3-display-container w3-teal "> \
+    <slot class="w3-bar-item w3-circle"></slot> \
            <span> {{ todo.text }}</span> \
-            <button v-on:click="$emit(`remove`,`Deleting *${todo.text}*`)">-</button> \
+            <button class="w3-button w3-display-right" v-on:click="$emit(`remove`,`Deleting *${todo.text}*`)">-</button> \
             </li>',
    data: function () {
   return {
@@ -220,15 +321,6 @@ Vue.component('todo-item', {
   }
 }         
 })
-/** Vue’s custom <slot> element:*/
-Vue.component('alert-box', { 
-  template: `
-    <div class="demo-alert-box">
-      <strong>Error!</strong>
-      <slot></slot>
-    </div>
-  `
-})
 
 /**
  * When a Vue instance is created, 
@@ -237,6 +329,13 @@ Vue.component('alert-box', {
 */
     var app = new Vue({
                 el: '#app',
+                components:{
+                    AlertBox,
+                    MakeBigger,
+                    BaseInput,
+                    CustomOption,
+                    DynamicTabs
+                },
                 /**It should be noted that properties in data are 
                  * only reactive if they existed 
                  * when the instance was created.
@@ -278,6 +377,24 @@ Vue.component('alert-box', {
                     { text: 'One', value: 'A' },
                     { text: 'Two', value: 'B' },
                     { text: 'Three', value: 'C' }
+                    ],
+                    size:1,
+                    username:'',
+                    labelColor:'#6F8FAF',
+                    cities:[ 
+                        
+                        {
+                           name:'London', 
+                           description:`London is the capital city of England.`
+                        },
+                        {
+                           name:'Tokyo', 
+                           description:`Tokyo is the capital of Japan.`
+                        },
+                        {
+                           name:'Paris', 
+                           description:`Paris is the capital of France.`
+                        }
                     ]
                 },
                 created: function () {
@@ -410,10 +527,16 @@ Vue.component('alert-box', {
                             })
 
                         },
-                        
+                       changeView:function (value){
+                           console.log('this.$emit',value)
+
+                       },
                        
                     }
             })
+
+
+
 </script>
 </body>
 </html>
